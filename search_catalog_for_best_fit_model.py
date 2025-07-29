@@ -164,6 +164,8 @@ if (len(station_coords)) > nbWaveform:
 # Retrieve the scenarios available in the catalog
 if os.path.exists(args.ensemble_dir) and os.path.isdir(args.ensemble_dir):
     model_dir_names = [d for d in os.listdir(args.ensemble_dir) if os.path.isdir(os.path.join(args.ensemble_dir, d))]
+    if 'inputs' in model_dir_names:
+        model_dir_names.remove('inputs')
     model_dir_names = sorted(model_dir_names, key=int)
     print(f"Found {len(model_dir_names)} scenarios in Alto Tiberina catalog\n")
 else:
