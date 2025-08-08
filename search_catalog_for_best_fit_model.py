@@ -142,8 +142,10 @@ def calculate_rms_misfit(obs_trace, syn_trace):
     return np.sqrt(np.sum((obs_trace - syn_trace) ** 2) / syn_trace.shape[0])
 
 
-def saveMisfit(output_file,dic,header):    
-    with open(output_file, "w") as f:
+def saveMisfit(output_file,directory,dic,header):    
+    if not os.path.exists(directory):
+      os.makedirs(directory)
+    with open(f"{directory}/{output_file}", "w") as f:
         f.write(f"{header}\n")
         for key, value in dic.items():
             f.write(f"{key} {value:.10f}\n")  # Format with 6 decimal places
@@ -164,6 +166,8 @@ if (len(station_coords)) > nbWaveform:
 # Retrieve the scenarios available in the catalog
 if os.path.exists(args.ensemble_dir) and os.path.isdir(args.ensemble_dir):
     model_dir_names = [d for d in os.listdir(args.ensemble_dir) if os.path.isdir(os.path.join(args.ensemble_dir, d))]
+    if 'inputs' in model_dir_names:
+        model_dir_names.remove('inputs')
     model_dir_names = sorted(model_dir_names, key=int)
     print(f"Found {len(model_dir_names)} scenarios in Alto Tiberina catalog\n")
 else:
@@ -205,11 +209,11 @@ for i in range(len(model_dir_names)):
     print(f"Misfit computed for {len(station_misfits)} receivers over a total of {len(files)}\n")
     
     # Save text file with misfit values per station 
-    saveMisfit(f"scenario_{model_dir_names[i]}_station_misfit.txt", station_misfits, "station misfit")
+    saveMisfit(f"scenario_{model_dir_names[i]}_station_misfit.txt", "Scenario_Misfit", station_misfits, "station misfit")
     model_misfits[model_dir_names[i]] =  sum(station_misfits.values())  
 
 # Save text file with misfit values per scenario 
-saveMisfit("scenario_misfit.txt", model_misfits, "scenario misfit")
+saveMisfit("scenario_misfit.txt", "Scenario_Misfit", model_misfits, "scenario misfit")
 
 # Find scenario yielding the lowest misfit
 best_model = min(model_misfits, key=model_misfits.get)
